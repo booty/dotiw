@@ -49,3 +49,12 @@ en:
       words_connector: ""
       two_words_connector: ""
       last_word_connector: ""
+      about_x_years:
+        one: ~1y
+        any: "~%{count}y"
+      over_x_years:
+        one: ">1y"
+        other: ">%{count}y"
+      almost_x_years:
+        one: ~1y
+        any: "~%{count}y"

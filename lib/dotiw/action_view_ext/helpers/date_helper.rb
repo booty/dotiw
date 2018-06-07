@@ -11,6 +11,7 @@ module ActionView
       end
 
       def distance_of_time(seconds, options = {})
+        options = options_with_scope(options)
         options[:include_seconds] ||= true
         display_time_in_words DOTIW::TimeHash.new(seconds, nil, nil, options).to_hash, options
       end
@@ -21,6 +22,7 @@ module ActionView
         else
           options[:include_seconds] ||= !!include_seconds_or_options
         end
+        options = options_with_scope(options)
         return distance_of_time(from_time, options) if to_time == 0
         return old_distance_of_time_in_words(from_time, to_time, options) if options.delete(:vague)
         hash = distance_of_time_in_words_hash(from_time, to_time, options)
@@ -29,6 +31,7 @@ module ActionView
 
       def distance_of_time_in_percent(from_time, current_time, to_time, options = {})
         options[:precision] ||= 0
+        options = options_with_scope(options)
         distance = to_time - from_time
         result = ((current_time - from_time) / distance) * 100
         number_with_precision(result, options).to_s + "%"
@@ -41,6 +44,11 @@ module ActionView
       end
 
       private
+      def options_with_scope(options)
+        options.merge!({:scope => DOTIW::DEFAULT_I18N_SCOPE_COMPACT}) if options.delete(:compact)
+        options
+      end
+
       def display_time_in_words(hash, options = {})
         options.reverse_merge!(
             :include_seconds => false
@@ -59,7 +67,7 @@ module ActionView
               (options[:only] && !options[:only].include?(key))
         end
 
-        i18n_scope = options.delete(:scope) || (options.delete(:compact) ? :"datetime.dotiw_compact" : nil) || DOTIW::DEFAULT_I18N_SCOPE
+        i18n_scope = options.delete(:scope) || DOTIW::DEFAULT_I18N_SCOPE
 
         if hash.empty?
           fractions = DOTIW::TimeHash::TIME_FRACTIONS

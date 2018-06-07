@@ -9,11 +9,12 @@ end
 
 module DOTIW
   extend self
-  
+
   autoload :VERSION, 'dotiw/version'
   autoload :TimeHash, 'dotiw/time_hash'
 
-  DEFAULT_I18N_SCOPE = :'datetime.dotiw'
+  DEFAULT_I18N_SCOPE         = :'datetime.dotiw'
+  DEFAULT_I18N_SCOPE_COMPACT = :'datetime.dotiw_compact'
 
   def init_i18n
     I18n.load_path.unshift(*locale_files)

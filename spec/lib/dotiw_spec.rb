@@ -81,33 +81,38 @@ describe "A better distance_of_time_in_words" do
   describe "real version" do
     it "debe hablar español" do
       expect(distance_of_time_in_words(START_TIME, START_TIME + 1.days, :locale => :es)).to eq("un día")
+      expect(distance_of_time_in_words(START_TIME, START_TIME + 1.days, :locale => :es, :compact => true)).to eq("1d")
       expect(distance_of_time_in_words(START_TIME, START_TIME + 5.days, :locale => :es)).to eq("5 días")
+      expect(distance_of_time_in_words(START_TIME, START_TIME + 5.days, :locale => :es, :compact => true)).to eq("5d")
     end
 
     it "deve parlare l'italiano" do
       expect(distance_of_time_in_words(START_TIME, START_TIME + 1.days, true, :locale => :it)).to eq("un giorno")
+      expect(distance_of_time_in_words(START_TIME, START_TIME + 1.days, true, :locale => :it, :compact => true)).to eq("1g")
       expect(distance_of_time_in_words(START_TIME, START_TIME + 5.days, true, :locale => :it)).to eq("5 giorni")
+      expect(distance_of_time_in_words(START_TIME, START_TIME + 5.days, true, :locale => :it, :compact => true)).to eq("5g")
     end
 
     fragments = [
-      [START_TIME, START_TIME + 5.days + 3.minutes, "5 days and 3 minutes"],
-      [START_TIME, START_TIME + 1.minute, "1 minute"],
-      [START_TIME, START_TIME + 3.years, "3 years"],
-      [START_TIME, START_TIME + 10.years, "10 years"],
-      [START_TIME, START_TIME + 8.months, "8 months"],
-      [START_TIME, START_TIME + 3.hour, "3 hours"],
-      [START_TIME, START_TIME + 13.months, "1 year and 1 month"],
+      [START_TIME, START_TIME + 5.days + 3.minutes, "5 days and 3 minutes", "5d3m"],
+      [START_TIME, START_TIME + 1.minute, "1 minute", "1m"],
+      [START_TIME, START_TIME + 3.years, "3 years", "3y"],
+      [START_TIME, START_TIME + 10.years, "10 years", "10y"],
+      [START_TIME, START_TIME + 8.months, "8 months", "8mo"],
+      [START_TIME, START_TIME + 3.hour, "3 hours", "3h"],
+      [START_TIME, START_TIME + 13.months, "1 year and 1 month", "1y1mo"],
       # Any numeric sequence is merely coincidental.
-      [START_TIME, START_TIME + 1.year + 2.months + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds, "1 year, 2 months, 3 weeks, 4 days, 5 hours, 6 minutes, and 7 seconds"],
-      ["2009-3-16".to_time, "2008-4-14".to_time, "11 months and 2 days"],
-      ["2009-3-16".to_time + 1.minute, "2008-4-14".to_time, "11 months, 2 days, and 1 minute"],
-      ["2009-4-14".to_time, "2008-3-16".to_time, "1 year, 4 weeks, and 1 day"],
-      ["2009-2-01".to_time, "2009-3-01".to_time, "1 month"],
-      ["2008-2-01".to_time, "2008-3-01".to_time, "1 month"]
+      [START_TIME, START_TIME + 1.year + 2.months + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds, "1 year, 2 months, 3 weeks, 4 days, 5 hours, 6 minutes, and 7 seconds", "1y2mo3w4d5h6m7s"],
+      ["2009-3-16".to_time, "2008-4-14".to_time, "11 months and 2 days", "11mo2d"],
+      ["2009-3-16".to_time + 1.minute, "2008-4-14".to_time, "11 months, 2 days, and 1 minute", "11mo2d1m"],
+      ["2009-4-14".to_time, "2008-3-16".to_time, "1 year, 4 weeks, and 1 day", "1y4w1d"],
+      ["2009-2-01".to_time, "2009-3-01".to_time, "1 month", "1mo"],
+      ["2008-2-01".to_time, "2008-3-01".to_time, "1 month", "1mo"]
     ]
-    fragments.each do |start, finish, output|
+    fragments.each do |start, finish, output, output_compact|
       it "should be #{output}" do
         expect(distance_of_time_in_words(start, finish, true)).to eq(output)
+        expect(distance_of_time_in_words(start, finish, true, :compact => true)).to eq(output_compact)
       end
     end
 
@@ -208,6 +213,10 @@ describe "A better distance_of_time_in_words" do
        "about 1 year"],
       [START_TIME,
        START_TIME + 1.year + 2.months + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds,
+       { :vague => "Yes please", :compact => true },
+       "~1y"],
+      [START_TIME,
+       START_TIME + 1.year + 2.months + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds,
        { :vague => false },
        "1 year, 2 months, 3 weeks, 4 days, 5 hours, 6 minutes, and 7 seconds"],
       [START_TIME,
@@ -235,9 +244,17 @@ describe "A better distance_of_time_in_words" do
        { :highest_measures => 2 },
        "2 years and 3 weeks"],
       [START_TIME,
+       START_TIME + 2.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds,
+       { :highest_measures => 2, :compact => true },
+       "2y3w"],
+      [START_TIME,
        START_TIME + 4.days + 6.minutes + 7.seconds,
        { :highest_measures => 3 },
        "4 days, 6 minutes, and 7 seconds"],
+      [START_TIME,
+       START_TIME + 4.days + 6.minutes + 7.seconds,
+       { :highest_measures => 3, :compact => true },
+       "4d6m7s"],
       [START_TIME,
        START_TIME + 1.year + 2.weeks,
        { :highest_measures => 3 },
@@ -251,9 +268,17 @@ describe "A better distance_of_time_in_words" do
        { :except => [:hours, :minutes, :seconds] },
        "less than 1 day"],
       [START_TIME,
+       START_TIME + 5.minutes,
+       { :except => [:hours, :minutes, :seconds], :compact => true },
+       "<1d"],
+      [START_TIME,
        START_TIME + 1.days,
        { :highest_measures => 1, :only => [:years, :months] },
-       "less than 1 month"]
+       "less than 1 month"],
+      [START_TIME,
+       START_TIME + 1.days,
+       { :highest_measures => 1, :only => [:years, :months], :compact => true },
+       "<1mo"]
     ]
     fragments.each do |start, finish, options, output|
       it "should be #{output}" do
