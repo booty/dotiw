@@ -59,7 +59,8 @@ module ActionView
               (options[:only] && !options[:only].include?(key))
         end
 
-        i18n_scope = options.delete(:scope) || DOTIW::DEFAULT_I18N_SCOPE
+        i18n_scope = options.delete(:scope) || (options.delete(:compact) ? :"datetime.dotiw_compact" : nil) || DOTIW::DEFAULT_I18N_SCOPE
+
         if hash.empty?
           fractions = DOTIW::TimeHash::TIME_FRACTIONS
           fractions = fractions & options[:only] if options[:only]
@@ -86,13 +87,13 @@ module ActionView
           output = output[0...highest_measures]
         end
 
-        options[:words_connector] ||= I18n.translate :'datetime.dotiw.words_connector',
+        options[:words_connector] ||= I18n.translate :"#{i18n_scope}.words_connector",
                                                      :default => :'support.array.words_connector',
                                                      :locale => options[:locale]
-        options[:two_words_connector] ||= I18n.translate :'datetime.dotiw.two_words_connector',
+        options[:two_words_connector] ||= I18n.translate :"#{i18n_scope}.two_words_connector",
                                                          :default => :'support.array.two_words_connector',
                                                          :locale => options[:locale]
-        options[:last_word_connector] ||= I18n.translate :'datetime.dotiw.last_word_connector',
+        options[:last_word_connector] ||= I18n.translate :"#{i18n_scope}.last_word_connector",
                                                          :default => :'support.array.last_word_connector',
                                                          :locale => options[:locale]
 
